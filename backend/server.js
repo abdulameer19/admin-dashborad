@@ -1,16 +1,19 @@
 import express from "express";
-// import dotenv from "dotenv";
-// import connectDB from "./config/db.js";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
 // import colors from "colors";
 // import path from "path";
+import productRoutes from './routes/productRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
+
 
 // import noteRoutes from "./routes/noteRoutes.js";
 // import userRoutes from "./routes/userRoutes.js";
 // import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
-// dotenv.config();
+dotenv.config();
 
-// connectDB();
+connectDB();
 
 const app = express(); // main thing
 
@@ -18,6 +21,9 @@ app.use(express.json()); // to accept json data
 
 // app.use("/api/notes", noteRoutes);
 // app.use("/api/users", userRoutes);
+//Routes
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // // --------------------------deployment------------------------------
 // const __dirname = path.resolve();
