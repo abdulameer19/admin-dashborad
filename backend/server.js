@@ -5,6 +5,8 @@ import connectDB from "./config/db.js";
 // import path from "path";
 import productRoutes from './routes/productRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import userRoutes from "./routes/userRoutes.js";
+
 
 
 // import noteRoutes from "./routes/noteRoutes.js";
@@ -24,6 +26,8 @@ app.use(express.json()); // to accept json data
 //Routes
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use("/api/users", userRoutes);
+
 
 // // --------------------------deployment------------------------------
 // const __dirname = path.resolve();

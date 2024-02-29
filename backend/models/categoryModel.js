@@ -6,8 +6,12 @@ const categorySchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    description: String
-    // Add more fields as needed
+    description: {
+        type: String,
+        required: true,
+        unique: true
+    },
+
 });
 
 export default mongoose.model('Category', categorySchema);

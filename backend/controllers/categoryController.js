@@ -2,22 +2,32 @@ import Category from '../models/categoryModel.js';
 
 export const createCategory = async (req, res) => {
     try {
-        const category = new Category(req.body);
-        await category.save();
-        res.status(201).send(category);
+
+        console.log("object")
+        const product = new Category({
+            name: req.body.name,
+
+            description: req.body.description,
+        });
+        await product.save();
+        res.status(201).send(product);
     } catch (err) {
         res.status(400).send(err);
     }
 };
+
+
 
 export const getAllCategories = async (req, res) => {
     try {
         const categories = await Category.find();
         res.send(categories);
     } catch (err) {
-        res.status(500).send(err);
+        console.error(err); // Log the error for debugging
+        res.status(500).send({ message: 'Failed to fetch categories' });
     }
 };
+
 
 export const getCategoryById = async (req, res) => {
     try {
