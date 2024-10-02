@@ -1,0 +1,33 @@
+name: node-app
+type: nodejs:20 # Assuming OVH supports Node.js 20, otherwise adjust to a supported version
+disk: 512
+
+env:
+  PORT: 30001
+  NODE_ENV: production
+  MONGO_URI: mongodb+srv://masonary:masonary@cluster0.wege5ia.mongodb.net/
+  JWT_SECRET: 0900abcde0930cvfgjkqqa
+
+variables:
+    env:
+        N_PREFIX: /app/.global
+
+hooks:
+    build: |
+        # Exit the hook on any failure
+        set -e
+
+        # Install the version specified in the .nvmrc file
+        n auto
+
+        # Reset the location hash to recognize the newly installed version
+        hash -r0
+
+dependencies:
+  nodejs:
+    npm: "*"
+     n: "*"
+
+web:
+  commands:
+    start: "npm run start"

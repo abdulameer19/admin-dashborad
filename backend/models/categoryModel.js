@@ -4,14 +4,24 @@ const categorySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     description: {
         type: String,
         required: true,
-        unique: true
     },
-
-});
+    parentCategories: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Category', // Reference to multiple parent categories
+        }
+    ],
+    subcategories: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Category', // Reference to subcategories
+        }
+    ]
+}, { timestamps: true });
 
 export default mongoose.model('Category', categorySchema);
