@@ -16,7 +16,7 @@ const Register = ({ registerUser }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('/api/users', { name, email, password, pic });
+            const response = await axios.post('/api/users', { name, email, password });
             registerUser(response.data);
         } catch (error) {
             setError('User already exists');

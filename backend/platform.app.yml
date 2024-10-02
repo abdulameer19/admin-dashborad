@@ -3,7 +3,7 @@ type: nodejs:20 # Assuming OVH supports Node.js 20, otherwise adjust to a suppor
 disk: 512
 
 env:
-  PORT: 30001
+  PORT: 32001
   NODE_ENV: production
   MONGO_URI: mongodb+srv://masonary:masonary@cluster0.wege5ia.mongodb.net/
   JWT_SECRET: 0900abcde0930cvfgjkqqa
