@@ -18,17 +18,19 @@ connectDB();
 console.log("Mongo URI: ", process.env.MONGO_URI);
 console.log("Port: ", process.env.PORT);
 console.log("JWT Secret: ", process.env.JWT_SECRET);
+console.log("Done 2 ")
 
 app.use(express.json()); // to accept json data
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://dev.france-thermometres.fr'], // Add your domain
+  origin: ['http://localhost:3000', 'https://freemasoncollections.netlify.app'], // Add your domain
   methods: 'GET, POST, PUT, DELETE, OPTIONS',
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
-
+// Handle preflight (OPTIONS) requests for all routes
+app.options('*', cors(corsOptions)); // Preflight requests for all routes
 // Define API routes
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -42,8 +44,7 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!'); // Send a generic error response
 });
 
-// Handle preflight (OPTIONS) requests for all routes
-app.options('*', cors(corsOptions)); // Preflight requests for all routes
+
 
 // Start the server
 const PORT = process.env.PORT || 32001;
