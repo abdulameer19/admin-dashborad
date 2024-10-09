@@ -22,7 +22,7 @@ console.log("Done 2 ")
 
 app.use(express.json()); // to accept json data
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://freemasoncollections.netlify.app'], // Add your domain
+  origin: ['http://localhost:3000', 'http://dev.france-thermometres.fr'], // Add your domain
   methods: 'GET, POST, PUT, DELETE, OPTIONS',
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -36,7 +36,10 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
 app.get('/',(req,res)=>{
-res.send("helloooo")
+  res.send("Hello Jin")
+})
+app.get('/api',(req,res)=>{
+  res.json("Hello Jin")
 })
 // Error logging middleware
 app.use((err, req, res, next) => {
@@ -47,7 +50,7 @@ app.use((err, req, res, next) => {
 
 
 // Start the server
-const PORT = process.env.PORT || 32001;
-app.listen(PORT, '127.0.0.1', () => {
-    console.log(`Server running on http://127.0.0.1:${PORT}`);
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log('Server is running on port 5000');
 });

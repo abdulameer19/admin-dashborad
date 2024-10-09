@@ -40,6 +40,46 @@ const authUser = asyncHandler(async (req, res) => {
   }
 });
 
+const authUserAdmin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  // Check for required fields
+  if (!email || !password) {
+    res.status(400).json({ message: "Email and password are required" });
+    return;
+  }
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    // Check if user exists and password matches
+    if (user && (await user.matchPassword(password))) {
+      // Check if the user is an admin
+      if (user.isAdmin) {
+        res.json({
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          pic: user.pic,
+          token: generateToken(user._id), // Ensure generateToken function is defined
+        });
+      } else {
+        res.status(403).json({ message: "Admin access required" });
+      }
+    } else {
+      res.status(401);
+      throw new Error("Invalid email or password");
+    }
+  } catch (error) {
+    // Log the error for debugging purposes
+    console.error("Error during authentication:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 //@description     Register new user
 //@route           POST /api/users/
 //@access          Public
@@ -123,4 +163,10 @@ const getUserById = async (req, res) => {
   }
 };
 
-export { authUser, updateUserProfile, registerUser, getUserById };
+export {
+  authUser,
+  updateUserProfile,
+  registerUser,
+  getUserById,
+  authUserAdmin,
+};
