@@ -1,27 +1,33 @@
 import Product from '../models/productModel.js';
 import Category from '../models/categoryModel.js';
 import mongoose from 'mongoose';
+import slugify from 'slugify';
+
+
 export const createProduct = async (req, res) => {
     try {
-        const { name, price, description, category } = req.body;
+        const { name, price, description, categories, images } = req.body;
 
-        // Check if the category ID is provided and valid (optional)
-        if (!category) {
-            return res.status(400).json({ message: 'Category ID is required' });
+        // Check if the required fields are provided
+        if (!categories || categories.length === 0) {
+            return res.status(400).json({ message: 'At least one category ID is required' });
         }
 
-        // Check if the category ID exists in the database (optional)
-        // const existingCategory = await Category.findById(category);
-        // if (!existingCategory) {
-        //     return res.status(404).json({ message: 'Category not found' });
-        // }
+        if (!images || images.length === 0) {
+            return res.status(400).json({ message: 'At least one image is required' });
+        }
 
-        // Create a new product instance
+        // Convert the product name to a slug for URL-friendly names
+        const slug = slugify(name, { lower: true });
+
+        // Create a new product instance with multiple categories and images
         const product = new Product({
             name,
+            slug, // Save the slug
             price,
             description,
-            category
+            categories, // Array of category IDs
+            images, // Array of image URLs or image paths
         });
 
         // Save the product to the database
@@ -34,7 +40,6 @@ export const createProduct = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
-
 
 export const updateProduct = async (req, res) => {
     try {

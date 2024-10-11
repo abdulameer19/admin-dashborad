@@ -10,6 +10,10 @@ const categorySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+      slug: {
+        type: String,
+        required: true,
+    },
     parentCategories: [
         {
             type: mongoose.Schema.Types.ObjectId,

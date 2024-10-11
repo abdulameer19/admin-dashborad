@@ -1,11 +1,14 @@
 import Category from '../models/categoryModel.js';
-
+import slugify from 'slugify';
 // Create a new category
 export const createCategory = async (req, res) => {
     try {
         const { name, description, parentCategories } = req.body;
         
         let parentCategoryIds = [];
+
+        // Generate slug from the category name
+        const slug = slugify(name, { lower: true, strict: true }); // Converts to lowercase and removes special characters
 
         // Check if parentCategories is provided and not empty
         if (parentCategories && parentCategories.length > 0) {
@@ -33,6 +36,7 @@ export const createCategory = async (req, res) => {
         const category = new Category({
             name,
             description,
+            slug,  // Include the generated slug in the category model
             parentCategories: parentCategoryIds.length > 0 ? parentCategoryIds : [],  // Optional: empty array if none selected
         });
 
@@ -51,7 +55,6 @@ export const createCategory = async (req, res) => {
         res.status(400).send({ message: 'Error creating category', error: err });
     }
 };
-
 
 
 // Get all categories (with parent and subcategory relationships populated)
@@ -86,7 +89,7 @@ export const getCategoryById = async (req, res) => {
 // Update a category (including handling parent categories and subcategories)
 export const updateCategory = async (req, res) => {
     try {
-        const { name, description, parentCategories } = req.body;
+        const { name, description,slug, parentCategories } = req.body;
 
         const category = await Category.findById(req.params.id);
         if (!category) {
@@ -96,6 +99,8 @@ export const updateCategory = async (req, res) => {
         // Update the category fields
         category.name = name || category.name;
         category.description = description || category.description;
+        category.slug = slug || category.slug;
+
         category.parentCategories = parentCategories || category.parentCategories;
 
         await category.save();
