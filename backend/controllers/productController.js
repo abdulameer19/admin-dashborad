@@ -6,25 +6,26 @@ import slugify from 'slugify';
 
 export const createProduct = async (req, res) => {
     try {
-        const { name, price, description, categories, images } = req.body;
+        const { name, price, salePrice, sku, description, categories, images } = req.body;
+        console.log("Name kia hai",name)
 
-        // Check if the required fields are provided
-        if (!categories || categories.length === 0) {
-            return res.status(400).json({ message: 'At least one category ID is required' });
-        }
-
-        if (!images || images.length === 0) {
-            return res.status(400).json({ message: 'At least one image is required' });
-        }
-
+      
         // Convert the product name to a slug for URL-friendly names
         const slug = slugify(name, { lower: true });
+
+        // Check if a product with the same slug already exists to avoid duplicates
+        const existingProduct = await Product.findOne({ slug });
+        if (existingProduct) {
+            return res.status(400).json({ message: 'A product with this name already exists' });
+        }
 
         // Create a new product instance with multiple categories and images
         const product = new Product({
             name,
             slug, // Save the slug
             price,
+            salePrice,
+            sku,
             description,
             categories, // Array of category IDs
             images, // Array of image URLs or image paths
@@ -37,10 +38,10 @@ export const createProduct = async (req, res) => {
         res.status(201).json({ message: 'Product created successfully', product });
     } catch (error) {
         // Handle any errors that occur during product creation
+        console.error('Product creation failed:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
-
 export const updateProduct = async (req, res) => {
     try {
         console.log("object")
