@@ -29,11 +29,11 @@ const productSchema = new mongoose.Schema({
         required: true,
         unique: true,  // SKU should be unique for each product
     },
-    categories: [{
-        type: mongoose.Schema.Types.ObjectId,
+    categories: {
+        type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds (references to Category model)
         ref: 'Category',
-        required: true,
-    }],
+        required: true,  // Ensures at least one category is provided
+      },
     images: [{
         type: String,
         required: true,

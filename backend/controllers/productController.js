@@ -1,47 +1,47 @@
 import Product from '../models/productModel.js';
 import Category from '../models/categoryModel.js';
 import mongoose from 'mongoose';
+import multer from 'multer';
+
 import slugify from 'slugify';
 
 
+const storage = multer.memoryStorage(); // Use memoryStorage for simplicity, or you can set diskStorage
+const upload = multer({ storage });
+
+// Use multer as middleware for the specific route that handles file uploads
 export const createProduct = async (req, res) => {
     try {
-        const { name, price, salePrice, sku, description, categories, images } = req.body;
-        console.log("Name kia hai",name)
-
-      
-        // Convert the product name to a slug for URL-friendly names
-        const slug = slugify(name, { lower: true });
-
-        // Check if a product with the same slug already exists to avoid duplicates
-        const existingProduct = await Product.findOne({ slug });
-        if (existingProduct) {
-            return res.status(400).json({ message: 'A product with this name already exists' });
-        }
-
-        // Create a new product instance with multiple categories and images
-        const product = new Product({
-            name,
-            slug, // Save the slug
-            price,
-            salePrice,
-            sku,
-            description,
-            categories, // Array of category IDs
-            images, // Array of image URLs or image paths
-        });
-
-        // Save the product to the database
-        await product.save();
-
-        // Return a success message and the created product data
-        res.status(201).json({ message: 'Product created successfully', product });
+      // Extract fields and files from the request body
+      const { name, price, salePrice, sku, description, category } = req.body;
+      const images = req.files || []; // Default to an empty array if no files are uploaded
+  
+      console.log("Name:", name);
+      console.log("Uploaded images:", images);
+  
+      // Convert the product name to a slug
+      const slug = slugify(name, { lower: true });
+  
+      // Create the product with form data and uploaded images
+      const product = new Product({
+        name,
+        slug,
+        price,
+        salePrice,
+        sku,
+        description,
+        categories: [category], // Assuming category is a single value
+        images: images.map(file => file.originalname), // Handling file saving logic
+      });
+  
+      await product.save();
+  
+      res.status(201).json({ message: 'Product created successfully', product });
     } catch (error) {
-        // Handle any errors that occur during product creation
-        console.error('Product creation failed:', error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+      console.error('Error creating product:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-};
+  };
 export const updateProduct = async (req, res) => {
     try {
         console.log("object")
