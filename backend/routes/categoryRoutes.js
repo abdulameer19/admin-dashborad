@@ -1,5 +1,5 @@
 import express from 'express';
-import { createCategory, getAllCategories, getCategoryById, updateCategory, deleteCategory } from '../controllers/categoryController.js';
+import { createCategory, getAllCategories, getCategoryById, updateCategory, deleteCategory,getCategoryBySlug } from '../controllers/categoryController.js';
 
 const router = express.Router();
 
@@ -14,6 +14,8 @@ router.get('/:id', getCategoryById);
 
 // Update a category by ID
 router.put('/:id', updateCategory);
+
+router.get('/:slug', getCategoryBySlug);
 
 // Delete a category by ID
 router.delete('/:id', deleteCategory);

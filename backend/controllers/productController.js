@@ -11,47 +11,44 @@ const upload = multer({ storage });
 // Use multer as middleware for the specific route that handles file uploads
 export const createProduct = async (req, res) => {
   try {
-    // Extract fields and files from the request body
-    const { name, price, sku, description, category, images, options } =
-      req.body;
+    const { name, price, sku, description, categories, images, options } = req.body;
 
-    console.log("Name:", name);
-    console.log("Uploaded images:", images);
+    console.log("Raw categories:", categories);
 
-    if (!name || !price || !sku || !description || !category) {
-      return res.status(400).json({ message: "All fields are required." });
+    // Flatten categories and validate them
+    const flattenedCategories = Array.isArray(categories) ? categories.flat() : [categories];
+    const validCategories = flattenedCategories.filter((id) =>
+      mongoose.Types.ObjectId.isValid(id)
+    );
+
+    if (!validCategories.length) {
+      return res.status(400).json({ message: "Invalid category IDs provided." });
     }
 
-    // Convert the product name to a slug
-    const slug = slugify(name, { lower: true });
-
-    // Parse options safely
+    // Parse options
     let parsedOptions = [];
     if (options) {
       try {
         parsedOptions = JSON.parse(options);
-      } catch (parseError) {
-        console.error("Error parsing options:", parseError);
-        return res
-          .status(400)
-          .json({ message: "Invalid JSON format for options." });
+      } catch (error) {
+        return res.status(400).json({ message: "Invalid JSON format for options." });
       }
     }
 
-    // Create the product
+    // Create product
+    const slug = slugify(name, { lower: true });
     const product = new Product({
       name,
       slug,
       price,
       sku,
       description,
-      categories: [category],
-      images: images, // Directly save the URLs array here
+      categories: validCategories,
+      images,
       options: parsedOptions,
     });
 
     await product.save();
-
     res.status(201).json({ message: "Product created successfully", product });
   } catch (error) {
     console.error("Error creating product:", error);
@@ -59,28 +56,31 @@ export const createProduct = async (req, res) => {
   }
 };
 
+
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, sku, description, category, images, options } =
+    const { name, price, sku, description, categories, images, options } =
       req.body;
 
-    // Validate category ID format
-    if (category && !mongoose.Types.ObjectId.isValid(category)) {
-      return res.status(400).send("Invalid category ID");
+    // Validate categories if provided
+    if (categories && (!Array.isArray(categories) || categories.some(cat => !mongoose.Types.ObjectId.isValid(cat)))) {
+      return res.status(400).send("Invalid category ID(s)");
     }
 
-    // Check if category exists if provided
-    if (id) {
-      const existingProduct = await Product.findById(id);
-      if (!existingProduct) {
-        return res.status(404).send("Product not found");
-      }
+    console.log("Id--->", id);
+
+    // Check if the product exists
+    const existingProduct = await Product.findById(id);
+    if (!existingProduct) {
+      return res.status(404).send("Product not found");
     }
-    if (category) {
-      const existingCategory = await Category.findById(category);
-      if (!existingCategory) {
-        return res.status(404).send("Category not found");
+
+    // Check if all provided categories exist
+    if (categories) {
+      const existingCategories = await Category.find({ _id: { $in: categories } });
+      if (existingCategories.length !== categories.length) {
+        return res.status(404).send("One or more categories not found");
       }
     }
 
@@ -105,12 +105,13 @@ export const updateProduct = async (req, res) => {
 
     // Find and update the product
     const product = await Product.findByIdAndUpdate(
-      req.params.id,
+      id,
       {
         ...(name && { name }),
         ...(price && { price }),
+        ...(sku && { sku }),
         ...(description && { description }),
-        ...(category && { categories: [category] }), // Update the category if provided
+        ...(categories && { categories }), // Update categories directly if provided
         ...(parsedOptions.length > 0 && { options: parsedOptions }), // Update options if provided
         ...(updatedImages && { images: updatedImages }), // Update images if provided
       },
@@ -127,6 +128,7 @@ export const updateProduct = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+
 
 export const deleteProduct = async (req, res) => {
   try {
@@ -152,10 +154,53 @@ export const getAllProducts = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+export const getProductsByCategorySlug = async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    // Find the category by slug
+    const category = await Category.findOne({ slug });
+
+    if (!category) {
+      return res.status(404).send({ message: "Category not found" });
+    }
+
+    // Find products associated with the category
+    const products = await Product.find({ categories: category._id });
+
+    if (products.length === 0) {
+      return res.status(404).send({ message: "No products found for this category" });
+    }
+
+    res.status(200).json(products);
+  } catch (err) {
+    console.error("Error fetching products by category slug:", err);
+    res.status(500).send({ message: "Internal server error" });
+  }
+};
+
+
+export const getProductsBySlug = async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    // Find the category by slug
+    const product = await Product.findOne({ slug });
+
+    if (!product) {
+      return res.status(404).send({ message: "Category not found" });
+    }
+
+    res.status(200).json(product);
+  } catch (err) {
+    console.error("Error fetching products by slug:", err);
+    res.status(500).send({ message: "Internal server error" });
+  }
+};
 
 export const getProductById = async (req, res) => {
   const { id } = req.params;
-
+console.log("idddd",id)
   // Validate the ObjectId format
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send({ message: "Invalid product ID format" });

@@ -59,15 +59,39 @@ export const createCategory = async (req, res) => {
 
 // Get all categories (with parent and subcategory relationships populated)
 export const getAllCategories = async (req, res) => {
-    try {
-        const categories = await Category.find()
-            .populate('parentCategories', 'name') // Populate parent categories
-            .populate('subcategories', 'name');   // Populate subcategories
-        res.send(categories);
-    } catch (err) {
-        console.error(err); // Log the error for debugging
-        res.status(500).send({ message: 'Failed to fetch categories' });
-    }
+  try {
+    const categories = await Category.find()
+      .populate('parentCategories', 'name slug') // Populate parent category details
+      .populate('subcategories', 'name slug')   // Populate subcategory details
+      .lean();
+
+    // Map categories by ID for easy lookup
+    const categoryMap = categories.reduce((acc, category) => {
+      acc[category._id] = { ...category, children: [] }; // Add a `children` array for hierarchy
+      return acc;
+    }, {});
+
+    const rootCategories = [];
+
+    // Organize categories into a hierarchy
+    categories.forEach((category) => {
+      if (category.parentCategories.length === 0) {
+        // No parent means this is a root category
+        rootCategories.push(categoryMap[category._id]);
+      } else {
+        // Add this category to its parent's `children` array
+        category.parentCategories.forEach((parentId) => {
+          if (categoryMap[parentId]) {
+            categoryMap[parentId].children.push(categoryMap[category._id]);
+          }
+        });
+      }
+    });
+
+    res.status(200).json(rootCategories); // Return hierarchical categories
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch categories', error });
+  }
 };
 
 // Get a category by ID (with parent and subcategory relationships populated)
@@ -125,6 +149,27 @@ export const updateCategory = async (req, res) => {
         res.status(400).send(err);
     }
 };
+
+export const getCategoryBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    // Query the Category model by `slug`
+    const category = await Category.findOne({ slug })
+      .populate('parentCategories', 'name') // Populate parent categories
+      .populate('subcategories', 'name');   // Populate subcategories
+
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    res.status(200).json(category);
+  } catch (err) {
+    console.error("Error fetching category by slug:", err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 
 // Delete a category (and remove references from parent categories)
 export const deleteCategory = async (req, res) => {
