@@ -20,7 +20,7 @@ console.log("Done 2 ");
 
 app.use(express.json()); // to accept json data
 const corsOptions = {
-  origin: "*", // Add your domain
+  origin: "http://localhost:3000", // Add your domain
   methods: "GET, POST, PUT, DELETE, OPTIONS",
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -28,7 +28,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 // Handle preflight (OPTIONS) requests for all routes
-app.options("*", cors(corsOptions)); // Preflight requests for all routes
+app.options("*", cors(corsOptions));
 // Define API routes
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
