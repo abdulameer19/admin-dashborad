@@ -1,9 +1,12 @@
-import express from "express";
-import { addToCart } from "../controllers/cartController.js";
-import { protect } from "../middleware/authMiddleware.js";
+const express = require("express");
+const { addToCart, getCart } = require("../controllers/cartController");
 
 const router = express.Router();
 
-router.post("/add", protect, addToCart);
+// Route to add item to cart
+router.post("/add", addToCart);
 
-export default router;
+// Route to get cart
+router.get("/", getCart);
+
+module.exports = router;
