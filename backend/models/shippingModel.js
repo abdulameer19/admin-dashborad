@@ -1,32 +1,58 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const shippingSchema = new mongoose.Schema(
+const ShippingSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    firstName: {
+      type: String,
       required: true,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
     },
     address: {
       type: String,
       required: true,
+      trim: true,
     },
-    city: {
+    additionalInfo: {
       type: String,
-      required: true,
+      trim: true,
     },
     postalCode: {
       type: String,
       required: true,
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
     },
     country: {
       type: String,
       required: true,
+      trim: true,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      match: [/.+\@.+\..+/, "Invalid email format"],
+    },
+    message: {
+      type: String,
+      trim: true,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-export default mongoose.model("Shipping", shippingSchema);
+module.exports = mongoose.model("Shipping", ShippingSchema);
