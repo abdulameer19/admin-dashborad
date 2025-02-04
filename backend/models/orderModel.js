@@ -1,12 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-// Order schema
 const orderSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
   cart: [
     {
       productId: {
@@ -14,14 +8,11 @@ const orderSchema = new mongoose.Schema({
         ref: "Product",
         required: true,
       },
-      quantity: {
-        type: Number,
-        required: true,
-      },
-      price: {
-        type: Number,
-        required: true,
-      },
+      name: { type: String, required: true },
+      slug: { type: String, required: true },
+      description: { type: String },
+      quantity: { type: Number, required: true },
+      price: { type: Number, required: true },
     },
   ],
   shippingDetails: {
@@ -37,12 +28,12 @@ const orderSchema = new mongoose.Schema({
   },
   deliveryOption: {
     type: String,
-    enum: ["standard", "express"],
+    enum: ["Standard", "express"],
     required: true,
   },
   paymentPlan: {
     type: String,
-    enum: ["full", "installments"],
+    enum: ["Full Payment", "installments"],
     required: true,
   },
   totalAmount: {
@@ -62,4 +53,5 @@ const orderSchema = new mongoose.Schema({
 
 const Order = mongoose.model("Order", orderSchema);
 
-module.exports = Order;
+// Use export default instead of module.exports
+export default Order;

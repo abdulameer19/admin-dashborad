@@ -1,10 +1,8 @@
-const express = require("express");
-const { createOrder } = require("../controllers/orderController");
-const { authenticateUser } = require("../middleware/authMiddleware"); // Assuming you have auth middleware to check user authentication
+import express from "express";
+import { createOrder } from "../controllers/orderController.js"; // Now using ES Modules
 
 const router = express.Router();
 
-// Route to create a new order
-router.post("/checkout", authenticateUser, createOrder);
+router.post("/", createOrder);
 
-module.exports = router;
+export default router;

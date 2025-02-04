@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import productRoutes from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import cors from "cors";
 
@@ -33,6 +34,8 @@ app.options("*", cors(corsOptions));
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/orders", orderRoutes);
+
 app.get("/", (req, res) => {
   res.send("Hello Jin");
 });

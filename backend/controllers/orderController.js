@@ -1,8 +1,7 @@
-const Order = require("../models/orderModel"); // import order model
-const { getCartTotal } = require("../utills/cartUtils"); // utility to calculate total
+import Order from "../models/orderModel.js"; // Now using ES Modules
+import { getCartTotal } from "../utills/cartUtils.js";
 
-// Create a new order
-const createOrder = async (req, res) => {
+export const createOrder = async (req, res) => {
   const { cart, shippingDetails, deliveryOption, paymentPlan } = req.body;
 
   // Validate required fields
@@ -10,13 +9,13 @@ const createOrder = async (req, res) => {
     return res.status(400).json({ message: "Cart is empty" });
   }
 
-  if (
-    !shippingDetails ||
-    !shippingDetails.firstName ||
-    !shippingDetails.lastName
-  ) {
-    return res.status(400).json({ message: "Shipping details are incomplete" });
-  }
+  // if (
+  //   !shippingDetails ||
+  //   !shippingDetails.firstName ||
+  //   !shippingDetails.lastName
+  // ) {
+  //   return res.status(400).json({ message: "Shipping details are incomplete" });
+  // }
 
   if (!deliveryOption || !paymentPlan) {
     return res
@@ -24,21 +23,28 @@ const createOrder = async (req, res) => {
       .json({ message: "Delivery and payment options are required" });
   }
 
+  // Transform cart to match schema
+  const transformedCart = cart.map((item) => ({
+    productId: item._id, // Ensure productId is mapped correctly
+    quantity: item.quantity,
+    price: item.price,
+  }));
+
   // Calculate total order amount
-  const totalAmount = getCartTotal(cart); // utility function to calculate the total
+  const totalAmount = getCartTotal(transformedCart);
 
   try {
     // Create new order
     const newOrder = new Order({
-      userId: req.user._id, // Assuming the user is authenticated
-      cart,
+      userId: req.user._id, // Ensure user is authenticated
+      cart: transformedCart,
       shippingDetails,
       deliveryOption,
       paymentPlan,
       totalAmount,
     });
 
-    // Save the order to the database
+    // Save the order
     await newOrder.save();
 
     return res
@@ -51,5 +57,3 @@ const createOrder = async (req, res) => {
       .json({ message: "Server error, unable to place order" });
   }
 };
-
-module.exports = { createOrder };
