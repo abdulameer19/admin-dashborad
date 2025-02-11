@@ -21,7 +21,7 @@ console.log("Done 2 ");
 
 app.use(express.json()); // to accept json data
 const corsOptions = {
-  origin: "http://localhost:3000", // Add your domain
+  origin: "https://www.dev.france-thermometres.fr", // Add your domain
   methods: "GET, POST, PUT, DELETE, OPTIONS",
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
