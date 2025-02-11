@@ -153,16 +153,16 @@ export const capturePayPalOrder = async (req, res) => {
         transactionId: data.id, // Save transaction ID
       });
 
-      await newOrder.save();
+    // Save the order
+    await newOrder.save();
 
-      return res
-        .status(201)
-        .json({ message: "Order placed successfully", order: newOrder });
-    } else {
-      return res.status(400).json({ message: "Payment not completed" });
-    }
+    return res
+      .status(201)
+      .json({ message: "Order placed successfully", order: newOrder });
   } catch (error) {
-    console.error("Error capturing PayPal order:", error);
-    return res.status(500).json({ message: "Error capturing PayPal order." });
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Server error, unable to place order" });
   }
 };
