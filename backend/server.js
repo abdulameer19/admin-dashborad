@@ -8,7 +8,7 @@ import userRoutes from "./routes/userRoutes.js";
 import cors from "cors";
 
 const app = express();
-
+app.use(express.json());
 // Load environment variables
 dotenv.config();
 
