@@ -121,8 +121,7 @@ export const createPayPalOrder = async (req, res) => {
 
 // Capture PayPal Order & Create Order in DB
 export const capturePayPalOrder = async (req, res) => {
-  const { orderID, cart, shippingDetails, deliveryOption, paymentPlan } =
-    req.body;
+  const { orderID, cart, shippingDetails, deliveryOption, paymentPlan } = req.body;
 
   try {
     const accessToken = await generateAccessToken();
@@ -153,12 +152,17 @@ export const capturePayPalOrder = async (req, res) => {
         transactionId: data.id, // Save transaction ID
       });
 
-    // Save the order
-    await newOrder.save();
+      // Save the order
+      await newOrder.save();
 
-    return res
-      .status(201)
-      .json({ message: "Order placed successfully", order: newOrder });
+      return res
+        .status(201)
+        .json({ message: "Order placed successfully", order: newOrder });
+    }
+
+    // Handle unsuccessful payment
+    return res.status(400).json({ message: "Payment not completed", data });
+
   } catch (error) {
     console.error(error);
     return res
@@ -166,3 +170,4 @@ export const capturePayPalOrder = async (req, res) => {
       .json({ message: "Server error, unable to place order" });
   }
 };
+
