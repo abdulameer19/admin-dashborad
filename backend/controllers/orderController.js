@@ -97,7 +97,7 @@ export const createPayPalOrder = async (req, res) => {
           },
         ],
         application_context: {
-          return_url: "https://yourwebsite.com/payment-success",
+          return_url: "http://localhost:3000/payment-success",
           cancel_url: "https://yourwebsite.com/payment-cancelled",
         },
       }),
@@ -121,7 +121,14 @@ export const createPayPalOrder = async (req, res) => {
 
 // Capture PayPal Order & Create Order in DB
 export const capturePayPalOrder = async (req, res) => {
-  const { orderID, cart, shippingDetails, deliveryOption, paymentPlan } = req.body;
+  const {
+    orderID,
+    cart,
+    shippingDetails,
+    deliveryOption,
+    paymentPlan,
+    insurance,
+  } = req.body;
 
   try {
     const accessToken = await generateAccessToken();
@@ -148,6 +155,7 @@ export const capturePayPalOrder = async (req, res) => {
         shippingDetails,
         deliveryOption,
         paymentPlan,
+        insurance, // Include insurance in order
         totalAmount: data.purchase_units[0].payments.captures[0].amount.value,
         transactionId: data.id, // Save transaction ID
       });
@@ -162,7 +170,6 @@ export const capturePayPalOrder = async (req, res) => {
 
     // Handle unsuccessful payment
     return res.status(400).json({ message: "Payment not completed", data });
-
   } catch (error) {
     console.error(error);
     return res
@@ -170,4 +177,3 @@ export const capturePayPalOrder = async (req, res) => {
       .json({ message: "Server error, unable to place order" });
   }
 };
-

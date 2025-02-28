@@ -40,6 +40,10 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  insurance: {
+    type: Boolean,
+    default: false,
+  },
   status: {
     type: String,
     enum: ["pending", "completed", "cancelled"],
