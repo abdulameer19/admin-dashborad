@@ -177,3 +177,32 @@ export const capturePayPalOrder = async (req, res) => {
       .json({ message: "Server error, unable to place order" });
   }
 };
+export const getOrders = async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 }); // Fetch orders sorted by latest
+    res.status(200).json(orders);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching orders", error: error.message });
+  }
+};
+export const updateOrderStatus = async (req, res) => {
+  const { status } = req.body;
+
+  if (!["pending", "completed", "shipped", "cancelled"].includes(status)) {
+    return res.status(400).json({ message: "Invalid status value" });
+  }
+
+  const updatedOrder = await Order.findByIdAndUpdate(
+    req.params.id,
+    { status }, // Update status
+    { new: true, runValidators: true } // Return updated order & enforce enum validation
+  );
+
+  if (!updatedOrder) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  res.json(updatedOrder);
+};
