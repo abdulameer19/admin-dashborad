@@ -11,18 +11,31 @@ const upload = multer({ storage });
 // Use multer as middleware for the specific route that handles file uploads
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, sku, description, categories, images, options } = req.body;
+    const {
+      name,
+      price,
+      sku,
+      description,
+      categories,
+      thumbnail,
+      images,
+      options,
+    } = req.body;
 
     console.log("Raw categories:", categories);
 
     // Flatten categories and validate them
-    const flattenedCategories = Array.isArray(categories) ? categories.flat() : [categories];
+    const flattenedCategories = Array.isArray(categories)
+      ? categories.flat()
+      : [categories];
     const validCategories = flattenedCategories.filter((id) =>
       mongoose.Types.ObjectId.isValid(id)
     );
 
     if (!validCategories.length) {
-      return res.status(400).json({ message: "Invalid category IDs provided." });
+      return res
+        .status(400)
+        .json({ message: "Invalid category IDs provided." });
     }
 
     // Parse options
@@ -31,7 +44,9 @@ export const createProduct = async (req, res) => {
       try {
         parsedOptions = JSON.parse(options);
       } catch (error) {
-        return res.status(400).json({ message: "Invalid JSON format for options." });
+        return res
+          .status(400)
+          .json({ message: "Invalid JSON format for options." });
       }
     }
 
@@ -44,6 +59,7 @@ export const createProduct = async (req, res) => {
       sku,
       description,
       categories: validCategories,
+      thumbnail,
       images,
       options: parsedOptions,
     });
@@ -56,7 +72,6 @@ export const createProduct = async (req, res) => {
   }
 };
 
-
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,7 +79,11 @@ export const updateProduct = async (req, res) => {
       req.body;
 
     // Validate categories if provided
-    if (categories && (!Array.isArray(categories) || categories.some(cat => !mongoose.Types.ObjectId.isValid(cat)))) {
+    if (
+      categories &&
+      (!Array.isArray(categories) ||
+        categories.some((cat) => !mongoose.Types.ObjectId.isValid(cat)))
+    ) {
       return res.status(400).send("Invalid category ID(s)");
     }
 
@@ -78,7 +97,9 @@ export const updateProduct = async (req, res) => {
 
     // Check if all provided categories exist
     if (categories) {
-      const existingCategories = await Category.find({ _id: { $in: categories } });
+      const existingCategories = await Category.find({
+        _id: { $in: categories },
+      });
       if (existingCategories.length !== categories.length) {
         return res.status(404).send("One or more categories not found");
       }
@@ -129,7 +150,6 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-
 export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
@@ -169,7 +189,9 @@ export const getProductsByCategorySlug = async (req, res) => {
     const products = await Product.find({ categories: category._id });
 
     if (products.length === 0) {
-      return res.status(404).send({ message: "No products found for this category" });
+      return res
+        .status(404)
+        .send({ message: "No products found for this category" });
     }
 
     res.status(200).json(products);
@@ -178,7 +200,6 @@ export const getProductsByCategorySlug = async (req, res) => {
     res.status(500).send({ message: "Internal server error" });
   }
 };
-
 
 export const getProductsBySlug = async (req, res) => {
   const { slug } = req.params;
@@ -200,7 +221,7 @@ export const getProductsBySlug = async (req, res) => {
 
 export const getProductById = async (req, res) => {
   const { id } = req.params;
-console.log("idddd",id)
+  console.log("idddd", id);
   // Validate the ObjectId format
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send({ message: "Invalid product ID format" });

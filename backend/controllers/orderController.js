@@ -190,7 +190,7 @@ export const getOrders = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
   const { status } = req.body;
 
-  if (!["pending", "completed", "shipped", "cancelled"].includes(status)) {
+  if (!["pending", "completed", "shipped", "canceled"].includes(status)) {
     return res.status(400).json({ message: "Invalid status value" });
   }
 
@@ -205,4 +205,23 @@ export const updateOrderStatus = async (req, res) => {
   }
 
   res.json(updatedOrder);
+};
+
+export const getOrderById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const order = await Order.findById(id).populate(
+      "cart.productId",
+      "image name price"
+    ); // Populating product details
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.json(order);
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };

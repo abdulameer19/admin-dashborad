@@ -31,6 +31,10 @@ const productSchema = new mongoose.Schema(
       ref: "Category",
       required: true, // Ensures at least one category is provided
     },
+    thumbnail: {
+      type: String,
+      required: true,
+    },
     images: [
       {
         type: String,
