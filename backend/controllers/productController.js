@@ -75,8 +75,16 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, sku, description, categories, images, options } =
-      req.body;
+    const {
+      name,
+      price,
+      sku,
+      description,
+      categories,
+      thumbnail,
+      images,
+      options,
+    } = req.body;
 
     // Validate categories if provided
     if (
@@ -132,7 +140,8 @@ export const updateProduct = async (req, res) => {
         ...(price && { price }),
         ...(sku && { sku }),
         ...(description && { description }),
-        ...(categories && { categories }), // Update categories directly if provided
+        ...(categories && { categories }),
+        ...(thumbnail && { thumbnail }),
         ...(parsedOptions.length > 0 && { options: parsedOptions }), // Update options if provided
         ...(updatedImages && { images: updatedImages }), // Update images if provided
       },

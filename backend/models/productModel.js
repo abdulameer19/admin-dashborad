@@ -33,7 +33,6 @@ const productSchema = new mongoose.Schema(
     },
     thumbnail: {
       type: String,
-      required: true,
     },
     images: [
       {
