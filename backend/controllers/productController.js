@@ -81,9 +81,9 @@ export const updateProduct = async (req, res) => {
       sku,
       description,
       categories,
-      thumbnail,
       images,
       options,
+      thumbnail,
     } = req.body;
 
     // Validate categories if provided
@@ -141,9 +141,9 @@ export const updateProduct = async (req, res) => {
         ...(sku && { sku }),
         ...(description && { description }),
         ...(categories && { categories }),
-        ...(thumbnail && { thumbnail }),
         ...(parsedOptions.length > 0 && { options: parsedOptions }), // Update options if provided
         ...(updatedImages && { images: updatedImages }), // Update images if provided
+        ...(thumbnail && { thumbnail }),
       },
       { new: true } // Return the updated document
     );
