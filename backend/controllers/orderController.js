@@ -65,7 +65,7 @@ export const createPayPalOrder = async (req, res) => {
     // Step 2: Ensure `totalAmount` is formatted as a string
     const formattedTotalAmount = parseFloat(totalAmount).toFixed(2).toString();
 
-    // Step 3: Create PayPal Order with Required `breakdown`
+    // Step 3: Create PayPal Order
     const response = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
       method: "POST",
       headers: {
@@ -83,7 +83,7 @@ export const createPayPalOrder = async (req, res) => {
                 item_total: {
                   value: formattedTotalAmount,
                   currency_code: "EUR",
-                }, // 🔥 REQUIRED FIELD
+                },
               },
             },
             items: cart.map((item) => ({
@@ -130,6 +130,10 @@ export const capturePayPalOrder = async (req, res) => {
     insurance,
   } = req.body;
 
+  if (!req.user || !req.user._id) {
+    return res.status(401).json({ message: "User authentication required." });
+  }
+
   try {
     const accessToken = await generateAccessToken();
 
@@ -146,21 +150,27 @@ export const capturePayPalOrder = async (req, res) => {
     );
 
     const data = await response.json();
+    console.log("PayPal Capture Response:", JSON.stringify(data, null, 2)); // Debugging
 
     if (data.status === "COMPLETED") {
-      // Save order in database only after payment success
+      const totalAmount =
+        data.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value ||
+        "0.00";
+      const transactionId = data.id;
+
+      // Save order in database only after successful payment
       const newOrder = new Order({
-        userId: req.user._id,
+        userId: req.user._id, // Associate order with authenticated user
         cart,
         shippingDetails,
         deliveryOption,
         paymentPlan,
         insurance, // Include insurance in order
-        totalAmount: data.purchase_units[0].payments.captures[0].amount.value,
-        transactionId: data.id, // Save transaction ID
+        totalAmount: parseFloat(totalAmount),
+        transactionId, // Save transaction ID
+        status: "completed",
       });
 
-      // Save the order
       await newOrder.save();
 
       return res
@@ -171,12 +181,13 @@ export const capturePayPalOrder = async (req, res) => {
     // Handle unsuccessful payment
     return res.status(400).json({ message: "Payment not completed", data });
   } catch (error) {
-    console.error(error);
+    console.error("Error capturing PayPal order:", error);
     return res
       .status(500)
       .json({ message: "Server error, unable to place order" });
   }
 };
+
 export const getOrders = async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 }); // Fetch orders sorted by latest
