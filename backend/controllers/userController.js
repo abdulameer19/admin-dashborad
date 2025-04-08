@@ -121,39 +121,36 @@ const registerUser = asyncHandler(async (req, res) => {
 // @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
-  console.log(user);
 
-  if (user) {
-    user.firstName = req.body.firstName || user.firstName;
-    user.lastName = req.body.lastName || user.lastName;
-
-    user.email = req.body.email || user.email;
-    user.pic = req.body.pic || user.pic;
-    if (req.body.password) {
-      user.password = req.body.password;
-    }
-
-    const updatedUser = await user.save();
-
-    res.json({
-      _id: updatedUser._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: updatedUser.email,
-      pic: updatedUser.pic,
-      isAdmin: updatedUser.isAdmin,
-      token: generateToken(updatedUser._id),
-    });
-  } else {
-    res.status(404);
-    throw new Error("User Not Found");
+  if (!user) {
+    return res.status(404).json({ message: "User Not Found" });
   }
+
+  // Update user details
+  user.firstName = req.body.firstName || user.firstName;
+  user.lastName = req.body.lastName || user.lastName;
+  user.email = req.body.email || user.email;
+
+  if (req.body.password) {
+    user.password = await bcrypt.hash(req.body.password, 10); // Hashing password
+  }
+
+  const updatedUser = await user.save();
+
+  res.json({
+    _id: updatedUser._id,
+    firstName: updatedUser.firstName,
+    lastName: updatedUser.lastName,
+    email: updatedUser.email,
+    token: generateToken(updatedUser._id),
+  });
 });
+
 const getUserById = async (req, res) => {
   const id = req.user._id;
 
   try {
-    const user = await User.findById(id).select("-password"); // Exclude password from the response
+    const user = await User.findById(id).select("-password"); // Exclude password
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -163,10 +160,22 @@ const getUserById = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find(); // Fetch all users
+    res.status(200).json(users); // Respond with users
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching users", error: err.message });
+  }
+};
+
 export {
   authUser,
   updateUserProfile,
   registerUser,
+  getAllUsers,
   getUserById,
   authUserAdmin,
 };
