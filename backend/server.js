@@ -44,7 +44,7 @@ app.use("/api/orders", orderRoutes);
 
 // Test routes
 app.get("/", (req, res) => {
-  res.send("Hello Jin");
+  res.send("Hello Jin ggg");
 });
 
 app.get("/api", (req, res) => {
