@@ -20,7 +20,6 @@ console.log("JWT Secret: ", process.env.JWT_SECRET);
 console.log("Done 2 ");
 
 app.use(express.json()); // to accept json data
-import cors from "cors";
 
 app.use(cors({
   origin: "*",
