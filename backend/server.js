@@ -23,10 +23,8 @@ app.use(express.json()); // to accept json data
 import cors from "cors";
 
 app.use(cors({
- app.use(cors({
   origin: "*",
   credentials: false,
-}));
 }));
 
 // Remove this line for now
