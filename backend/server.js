@@ -22,14 +22,15 @@ console.log("Done 2 ");
 app.use(express.json()); // to accept json data
 
 app.use(cors({
-  origin: "*",
-  credentials: false,
+  origin: "https://freemasoncollections.netlify.app",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
-
 // Remove this line for now
 // app.options("*", cors(corsOptions));
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 // Handle preflight (OPTIONS) requests for all routes
 app.options("*", cors(corsOptions));
 // Define API routes
