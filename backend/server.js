@@ -22,6 +22,8 @@ console.log("Done 2 ");
 app.use(express.json()); // to accept json data
 const corsOptions = {
   methods: "GET, POST, PUT, DELETE, OPTIONS",
+    origin: "https://freemasoncollections.netlify.app",
+
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 };
