@@ -20,13 +20,21 @@ console.log("JWT Secret: ", process.env.JWT_SECRET);
 console.log("Done 2 ");
 
 app.use(express.json()); // to accept json data
-const corsOptions = {
-  methods: "GET, POST, PUT, DELETE, OPTIONS",
-    origin: "https://freemasoncollections.netlify.app",
+import cors from "cors";
 
-  credentials: true,
+app.use(cors({
+  origin: [
+    "https://freemasoncollections.netlify.app",
+    "http://localhost:3000",
+    "http://localhost:5173"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-};
+  credentials: true,
+}));
+
+// Remove this line for now
+// app.options("*", cors(corsOptions));
 
 app.use(cors(corsOptions));
 // Handle preflight (OPTIONS) requests for all routes
