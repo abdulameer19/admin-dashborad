@@ -46,7 +46,7 @@ app.get("/", (req, res) => {
 });
 app.get("/api", (req, res) => {
  console.log("Discoo")
-  res.json("Hello Jin");
+  res.json("Hello Jin gg");
 });
 // Error logging middleware
 app.use((err, req, res, next) => {
