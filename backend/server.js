@@ -45,6 +45,7 @@ app.get("/", (req, res) => {
   res.send("Hello Jin");
 });
 app.get("/api", (req, res) => {
+ console.log("Discoo")
   res.json("Hello Jin");
 });
 // Error logging middleware
